@@ -34,6 +34,9 @@ uint8_t tinyc_read_input();
 #define TINYC_BUTTON_A        0x10
 #define TINYC_BUTTON_B        0x20
 
+int32_t tinyc_file_read(void *dst,int32_t dsta,const char *path);
+int8_t tinyc_file_write(const char *path,const void *src,int32_t srcc);
+
 #ifdef __cplusplus
 }
 #endif

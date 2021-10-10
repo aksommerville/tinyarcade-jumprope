@@ -5,6 +5,8 @@
 #include <string.h>
 #include <stdio.h>
 #include <unistd.h>
+#include <fcntl.h>
+#include <stdlib.h>
 
 /* Globals.
  */
@@ -185,5 +187,41 @@ int tinyc_quit_requested() {
     quit_requested=0;
     return 1;
   }
+  return 0;
+}
+
+/* Files.
+ */
+ 
+// Fails if it doesn't fit.
+static int tinyc_mangle_path(char *dst,int dsta,const char *src) {
+  const char *HOME=getenv("HOME");
+  if (!HOME) HOME=".";
+  int dstc=snprintf(dst,dsta,"%s/%s",HOME,src);
+  if ((dstc<1)||(dstc>=dsta)) return -1;
+  return dstc;
+}
+ 
+int32_t tinyc_file_read(void *dst,int32_t dsta,const char *path) {
+  char hpath[1024];
+  if (tinyc_mangle_path(hpath,sizeof(hpath),path)<0) return -1;
+  int fd=open(hpath,O_RDONLY);
+  if (fd<0) return -1;
+  int err=read(fd,dst,dsta);
+  close(fd);
+  return err;
+}
+
+int8_t tinyc_file_write(const char *path,const void *src,int32_t srcc) {
+  char hpath[1024];
+  if (tinyc_mangle_path(hpath,sizeof(hpath),path)<0) return -1;
+  int fd=open(hpath,O_WRONLY|O_CREAT|O_TRUNC,0666);
+  if (fd<0) return -1;
+  if (write(fd,src,srcc)!=srcc) {
+    close(fd);
+    unlink(hpath);
+    return -1;
+  }
+  close(fd);
   return 0;
 }

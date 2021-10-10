@@ -305,6 +305,7 @@ static uint8_t arc_starts[1+ARC_HEIGHT_LIMIT]={
 #define ROPE_SPEED_INITIAL 3
 #define ROPE_SPEED_MAX    10
 #define ROPE_INCREASE_INTERVAL 10
+#define HISCORE_PATH "/Jumprope/HISCORE"
 
 static uint32_t score=0;
 static uint32_t hiscore=0;
@@ -389,7 +390,7 @@ static void update_game(uint8_t input) {
       rope=0;
       if (score>=hiscore) {
         hiscore=score;
-        //TODO persist hiscore
+        if (HISCORE_PATH) tinyc_file_write(HISCORE_PATH,&hiscore,sizeof(hiscore));
       }
       return;
     }
@@ -530,7 +531,7 @@ void setup() {
   tinyc_init();
   init_jumpers();
   
-  //TODO read hiscore from file
+  if (HISCORE_PATH) tinyc_file_read(&hiscore,sizeof(hiscore),HISCORE_PATH);
 
   tinyc_init_usb_log();
 }
